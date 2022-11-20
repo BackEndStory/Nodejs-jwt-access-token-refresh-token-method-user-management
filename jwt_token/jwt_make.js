@@ -13,8 +13,17 @@ module.exports = {
 
     return jwt.sign(payload, secret, { 
       algorithm: 'HS256', 
-      expiresIn: '2m', 	  
+      expiresIn: '3m', 	  
     });
+  },
+  decode:(token) => {
+    let decoded = null;
+    decoded = jwt.decode(token, secret);
+      return {
+        message: true,
+        id: decoded.id,
+        role: decoded.role,
+  }
   },
   verify: (token) => { 
     let decoded = null;
@@ -35,7 +44,7 @@ module.exports = {
   refresh: () => {
     return jwt.sign({}, secret, { 
       algorithm: 'HS256',
-      expiresIn: '4m',
+      expiresIn: '8m',
     });
   },
   refreshVerify: async (token, userId) => {
