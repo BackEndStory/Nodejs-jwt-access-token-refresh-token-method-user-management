@@ -1,8 +1,9 @@
-const { promisify } = require('util');
+
 const jwt = require('jsonwebtoken');
 const redis = require('redis');
 const secret = process.env.SECRET;
-
+const redisClient = redis.createClient(process.env.REDIS_PORT);
+redisClient.connect();
 
 module.exports = {
   sign: (user_id,user_role) => { 
@@ -13,7 +14,7 @@ module.exports = {
 
     return jwt.sign(payload, secret, { 
       algorithm: 'HS256', 
-      expiresIn: '3m', 	  
+      expiresIn: '1m', 	  
     });
   },
   decode:(token) => {
@@ -44,28 +45,27 @@ module.exports = {
   refresh: () => {
     return jwt.sign({}, secret, { 
       algorithm: 'HS256',
-      expiresIn: '8m',
+      expiresIn: '2m',
     });
   },
   refreshVerify: async (token, userId) => {
-      const redisClient = redis.createClient(process.env.REDIS_PORT);
-      await redisClient.connect();
-      const getAsync = promisify(redisClient.get).bind(redisClient);
-      
-      try {
-        const data = await getAsync(String(userId)); 
-        if (token === data) {
-          try {
-            jwt.verify(token, secret);
-            return true;
-          } catch (err) {
-            return false;
-          }
-        } else {
-          return false;
+      console.log(userId);
+      console.log(token);
+    try{
+      const data = await redisClient.get(String(userId));
+      console.log(data.split('Bearer ')[1]);
+      if (token === data.split('Bearer ')[1]) {
+        try {
+          jwt.verify(data.split('Bearer ')[1], secret);
+          return {state:true};
+        } catch (error) {
+            return {state:false}; 
         }
-      } catch (err) {
-        return false;
+      } else {
+        return {state:false};
       }
-  },
+      } catch (err) {
+        return {state:false};
+      }
+  }
 };

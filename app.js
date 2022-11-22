@@ -3,8 +3,8 @@ const morgan = require('morgan');
 const { sequelize } = require('./models');
 const user_manage = require('./routes/user_management')
 const dotenv = require('dotenv');
-dotenv.config();
 
+dotenv.config();
 
 const app = express();
 

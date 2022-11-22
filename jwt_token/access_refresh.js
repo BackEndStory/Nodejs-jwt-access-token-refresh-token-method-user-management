@@ -2,6 +2,7 @@ const { sign, verify, refreshVerify } = require('./jwt_make');
 const jwt = require('jsonwebtoken');
 const redis = require('redis');
 const redisClient = redis.createClient(process.env.REDIS_PORT);
+redisClient.connect();
 const { verifyToken } = require("../routes/middlewares");
 
 const access_refresh = async (req, res) => {
@@ -11,30 +12,24 @@ const access_refresh = async (req, res) => {
 
   if (req.headers.authorization && req.headers.refresh) {
   
-        const refreshToken = req.headers.refresh;
-
-        
-        
-        if (req.decoded === null) {
+        const refreshToken = req.headers.refresh.split('Bearer ')[1];
+        if (decoded === null) {
             res.status(404).send({
                 code:404,
                 state: false,
                 message: 'No content.',
             });
-            }
-        const refreshResult =  refreshVerify(refreshToken, decoded.id);
+         }
+        const refreshResult = await refreshVerify(refreshToken, decoded.id[0]);
         if (authResult.state === false && authResult.message === 'jwt expired') {
-            
             if (refreshResult.state === false) {
-                res.status(419).send({
+                return res.status(419).send({
                     code:419,
                     state: false,
-                    message: 'No authorized.',
+                    message: 'login again!',
                 });
             } else {
-            
                 const newAccessToken = sign(decoded.id);
-                await redisClient.connect();
                 const user_refreshToken = await redisClient.get(String(decoded.id));
                 res.status(200).send({ 
                     code:200,
