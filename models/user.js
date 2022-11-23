@@ -27,6 +27,10 @@ module.exports = class User extends Sequelize.Model {
           allowNull: false,
           unique: true
         },
+        prifile_img:{
+          type: Sequelize.STRING(100),
+          allowNull: true,
+        }
   
       }, {
         sequelize,

@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const a = "cn37rqww@@";
+const a = "abcd1234";
 
 async function pass(a){
     const hash =  await bcrypt.hash(a,12);

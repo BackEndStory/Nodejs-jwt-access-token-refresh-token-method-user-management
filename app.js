@@ -1,14 +1,23 @@
 const express = require('express');
 const morgan = require('morgan');
 const { sequelize } = require('./models');
-const user_manage = require('./routes/user_management')
+const user_login_signup = require('./routes/user_login_signup');
+const user_find_update = require('./routes/user_find_update');
 const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
+const multer = require('multer');
+const form_data = multer();
 
 dotenv.config();
 
 const app = express();
 
 app.set('port', process.env.PORT || 3000);
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(form_data.array());
+
 sequelize.sync({ force: false })
   .then(() => {
     console.log('데이터베이스 연결 성공');
@@ -20,7 +29,7 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/user',user_manage);
+app.use('/user',user_login_signup,user_find_update);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
