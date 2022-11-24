@@ -1,46 +1,61 @@
 const express = require('express');
 const { verifyToken } = require("./middlewares");
 const User = require('../models/user');
-const upload = require('../imageUploader')
 const router = express.Router();
 const path = require('path');
 let AWS = require("aws-sdk");
-AWS.config.loadFromPath(__dirname + "/../config/awsconfig.json"); 
-let s3 = new AWS.S3();
-
-let multer = require("multer");
-let multerS3 = require('multer-s3');
-// let upload = multer({
-
-//     storage: multerS3({
-//         s3: s3,
-//         bucket: "profile-user",
-//         Key: function (req, file, cb) {
-//              let extension = path.extname(file.originalname);
-             
-//              cb(null, req.Date.now().toString() + extension)
-//         },
-//         acl: 'public-read-write',
-//     })
-
-// })
+const env = process.env;
 
 
-router.post('/update_profile', upload.single('file'), async(req,res,next)=>{
-  if(req.file === undefined){
-     res.status(404).json({
-        message:"error"
-     })
-  }
-  else{
-    res.status(200).json({
-        message:'OK'
+router.post('/update_profile', async(req,res,next)=>{
+
+    AWS.config.update({
+      region: 'ap-northeast-2',
+      accessKeyId: env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
+    });
+    const s3 = new AWS.S3();
+    console.log(req.file);
+    //const fileContent = Buffer.from(req.file.data);
+    const fileContent = Buffer.from(req.file);
+    const params = {
+        Bucket:'profile-user',
+        //Key: req.files.data.name,
+        Key: req.file.name,
+        Body: fileContent,
+        ACL: 'public-read',
+        ContentType: req.file.mimetype
+    }
+    
+    s3.upload(params, (err,data)=>{
+      
+      if(err){
+        throw err;
+      }
+      res.send({
+           "responsecode": 200,
+           "response_message":"Success",
+           "response_data": data
+      });
     })
-  }
+
+
+  });
+
+  // if(req.file === undefined){
+  //    res.status(404).json({
+  //       message:"error"
+  //    })
+  // }
+  // else{
+  //   res.status(200).json({
+  //       message:'OK'
+  //   })
+  // }
 
  
 
-});
+
 
 
 module.exports = router;

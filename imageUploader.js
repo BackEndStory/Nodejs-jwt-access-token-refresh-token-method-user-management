@@ -17,7 +17,7 @@ const env = process.env;
         storage: multerS3({
             s3:s3,
             bucket: 'profile-user',
-            Body: buffer,
+          //  Body: buffer,
             ContentEncoding: 'base64',
             contentType: multerS3.AUTO_CONTENT_TYPE,
             key: (req,file,callback)=>{

@@ -7,6 +7,7 @@ const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const form_data = multer();
+const fileupload = require("express-fileupload");
 
 dotenv.config();
 
@@ -28,7 +29,7 @@ sequelize.sync({ force: false })
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.use(fileupload());
 app.use('/user',user_login_signup,user_find_update);
 
 app.use((req, res, next) => {
