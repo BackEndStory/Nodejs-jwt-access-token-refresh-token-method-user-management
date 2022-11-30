@@ -5,9 +5,8 @@ const user_login_signup = require('./routes/user_login_signup');
 const user_find_update = require('./routes/user_find_update');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
-const multer = require('multer');
-const form_data = multer();
-const fileupload = require("express-fileupload");
+
+
 
 dotenv.config();
 
@@ -17,7 +16,7 @@ app.set('port', process.env.PORT || 3000);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(form_data.array());
+
 
 sequelize.sync({ force: false })
   .then(() => {
@@ -29,7 +28,7 @@ sequelize.sync({ force: false })
 app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(fileupload());
+
 app.use('/user',user_login_signup,user_find_update);
 
 app.use((req, res, next) => {
